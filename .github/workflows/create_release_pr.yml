@@ -1,0 +1,134 @@
+name: Create release Pull Request
+
+on:
+  push:
+    branches:
+      - 'release/v*.*.*'
+  workflow_dispatch:
+    inputs:
+      base_branch:
+        description: Base branch for the pull request
+        required: false
+        default: main
+        type: string
+      head_branch:
+        description: Head branch to open as a pull request
+        required: false
+        type: string
+      draft:
+        description: Create the pull request as a draft
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: auto-create-pr-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  create-pr:
+    name: Create or reuse pull request
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve pull request branches
+        id: branches
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DEFAULT_BASE_BRANCH: ${{ inputs.base_branch || 'main' }}
+          MANUAL_HEAD_BRANCH: ${{ inputs.head_branch }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          base_branch="$DEFAULT_BASE_BRANCH"
+          head_branch="$REF_NAME"
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "$MANUAL_HEAD_BRANCH" ]; then
+            head_branch="$MANUAL_HEAD_BRANCH"
+          fi
+
+          if [ "$head_branch" = "$base_branch" ]; then
+            echo "::error title=Invalid branch selection::Head branch and base branch must be different."
+            exit 1
+          fi
+
+          echo "base_branch=$base_branch" >> "$GITHUB_OUTPUT"
+          echo "head_branch=$head_branch" >> "$GITHUB_OUTPUT"
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.branches.outputs.head_branch }}
+
+      - name: Check for branch changes
+        id: changes
+        env:
+          BASE_BRANCH: ${{ steps.branches.outputs.base_branch }}
+          HEAD_BRANCH: ${{ steps.branches.outputs.head_branch }}
+        run: |
+          git fetch origin \
+            "$BASE_BRANCH:refs/remotes/origin/$BASE_BRANCH" \
+            "$HEAD_BRANCH:refs/remotes/origin/$HEAD_BRANCH"
+
+          ahead_count="$(git rev-list --count "origin/$BASE_BRANCH..origin/$HEAD_BRANCH")"
+          echo "ahead_count=$ahead_count" >> "$GITHUB_OUTPUT"
+
+          if [ "$ahead_count" -eq 0 ]; then
+            echo "No commits to open as a pull request."
+          fi
+
+      - name: Find existing pull request
+        id: existing
+        if: ${{ steps.changes.outputs.ahead_count != '0' }}
+        env:
+          GH_TOKEN: ${{ secrets.PR_AUTOMATION_TOKEN || github.token }}
+          BASE_BRANCH: ${{ steps.branches.outputs.base_branch }}
+          HEAD_BRANCH: ${{ steps.branches.outputs.head_branch }}
+        run: |
+          pr_url="$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "$BASE_BRANCH" \
+            --head "$HEAD_BRANCH" \
+            --state open \
+            --json url \
+            --jq '.[0].url // ""')"
+
+          echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
+
+      - name: Create pull request
+        if: ${{ steps.changes.outputs.ahead_count != '0' && steps.existing.outputs.pr_url == '' }}
+        env:
+          GH_TOKEN: ${{ secrets.PR_AUTOMATION_TOKEN || github.token }}
+          TOKEN_SOURCE: ${{ secrets.PR_AUTOMATION_TOKEN && 'PR_AUTOMATION_TOKEN' || 'GITHUB_TOKEN' }}
+          BASE_BRANCH: ${{ steps.branches.outputs.base_branch }}
+          HEAD_BRANCH: ${{ steps.branches.outputs.head_branch }}
+          DRAFT_PR: ${{ inputs.draft || false }}
+        run: |
+          if [ "$TOKEN_SOURCE" = "GITHUB_TOKEN" ]; then
+            echo "::notice title=Using GITHUB_TOKEN::If PR creation fails with createPullRequest permission, enable Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests, or add a PR_AUTOMATION_TOKEN secret."
+          fi
+
+          args=(
+            --repo "$GITHUB_REPOSITORY"
+            --base "$BASE_BRANCH"
+            --head "$HEAD_BRANCH"
+            --title "Release ${HEAD_BRANCH#release/}"
+            --body "Automated pull request from \`$HEAD_BRANCH\` to \`$BASE_BRANCH\`."
+          )
+
+          if [ "$DRAFT_PR" = "true" ]; then
+            args+=(--draft)
+          fi
+
+          gh pr create "${args[@]}"
+
+      - name: Report existing pull request
+        if: ${{ steps.changes.outputs.ahead_count != '0' && steps.existing.outputs.pr_url != '' }}
+        env:
+          PR_URL: ${{ steps.existing.outputs.pr_url }}
+        run: |
+          echo "Open pull request already exists: $PR_URL"
