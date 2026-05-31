@@ -95,7 +95,7 @@ jobs:
         id: existing
         if: ${{ steps.changes.outputs.ahead_count != '0' }}
         env:
-          GH_TOKEN: ${{ secrets.PR_AUTOMATION_TOKEN || github.token }}
+          GH_TOKEN: ${{ github.token }}
           BASE_BRANCH: ${{ steps.branches.outputs.base_branch }}
           HEAD_BRANCH: ${{ steps.branches.outputs.head_branch }}
         run: |
@@ -112,8 +112,8 @@ jobs:
       - name: Create pull request
         if: ${{ steps.changes.outputs.ahead_count != '0' && steps.existing.outputs.pr_url == '' }}
         env:
-          GH_TOKEN: ${{ secrets.PR_AUTOMATION_TOKEN || github.token }}
-          TOKEN_SOURCE: ${{ secrets.PR_AUTOMATION_TOKEN && 'PR_AUTOMATION_TOKEN' || 'GITHUB_TOKEN' }}
+          GH_TOKEN: ${{ github.token }}
+          TOKEN_SOURCE: ${{ 'GITHUB_TOKEN' }}
           BASE_BRANCH: ${{ steps.branches.outputs.base_branch }}
           HEAD_BRANCH: ${{ steps.branches.outputs.head_branch }}
           DRAFT_PR: ${{ inputs.draft || false }}
