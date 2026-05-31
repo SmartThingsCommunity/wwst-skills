@@ -35,7 +35,6 @@ jobs:
     if: ${{ github.event_name == 'push' || startsWith(inputs.head_branch || github.ref_name, 'release/v') }}
     runs-on: ubuntu-latest
 
-
     steps:
       - name: Resolve pull request branches
         id: branches
