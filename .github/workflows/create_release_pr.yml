@@ -52,6 +52,11 @@ jobs:
             head_branch="$MANUAL_HEAD_BRANCH"
           fi
 
+          if [ "$head_branch" = "$base_branch" ]; then
+            echo "::error title=Invalid branch selection::Head branch and base branch must be different."
+            exit 1
+          fi
+
           if [[ ! "$head_branch" =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "::notice title=Skipped non-release branch::Auto PR creation only runs for release/vx.y.z branches."
             echo "is_release_branch=false" >> "$GITHUB_OUTPUT"
