@@ -32,7 +32,9 @@ concurrency:
 jobs:
   create-pr:
     name: Create or reuse pull request
+    if: ${{ github.event_name == 'push' || startsWith(inputs.head_branch || github.ref_name, 'release/v') }}
     runs-on: ubuntu-latest
+
 
     steps:
       - name: Resolve pull request branches
@@ -50,15 +52,18 @@ jobs:
             head_branch="$MANUAL_HEAD_BRANCH"
           fi
 
-          if [ "$head_branch" = "$base_branch" ]; then
-            echo "::error title=Invalid branch selection::Head branch and base branch must be different."
-            exit 1
+          if [[ ! "$head_branch" =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::notice title=Skipped non-release branch::Auto PR creation only runs for release/vx.y.z branches."
+            echo "is_release_branch=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
+          echo "is_release_branch=true" >> "$GITHUB_OUTPUT"
           echo "base_branch=$base_branch" >> "$GITHUB_OUTPUT"
           echo "head_branch=$head_branch" >> "$GITHUB_OUTPUT"
 
       - name: Check out repository
+        if: ${{ steps.branches.outputs.is_release_branch == 'true' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -66,6 +71,7 @@ jobs:
 
       - name: Check for branch changes
         id: changes
+        if: ${{ steps.branches.outputs.is_release_branch == 'true' }}
         env:
           BASE_BRANCH: ${{ steps.branches.outputs.base_branch }}
           HEAD_BRANCH: ${{ steps.branches.outputs.head_branch }}
