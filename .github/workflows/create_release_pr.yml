@@ -32,6 +32,7 @@ concurrency:
 jobs:
   create-pr:
     name: Create or reuse pull request
+    if: ${{ github.event_name == 'push' || startsWith(inputs.head_branch || github.ref_name, 'release/v') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -55,10 +56,18 @@ jobs:
             exit 1
           fi
 
+          if [[ ! "$head_branch" =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::notice title=Skipped non-release branch::Auto PR creation only runs for release/vx.y.z branches."
+            echo "is_release_branch=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "is_release_branch=true" >> "$GITHUB_OUTPUT"
           echo "base_branch=$base_branch" >> "$GITHUB_OUTPUT"
           echo "head_branch=$head_branch" >> "$GITHUB_OUTPUT"
 
       - name: Check out repository
+        if: ${{ steps.branches.outputs.is_release_branch == 'true' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -66,6 +75,7 @@ jobs:
 
       - name: Check for branch changes
         id: changes
+        if: ${{ steps.branches.outputs.is_release_branch == 'true' }}
         env:
           BASE_BRANCH: ${{ steps.branches.outputs.base_branch }}
           HEAD_BRANCH: ${{ steps.branches.outputs.head_branch }}
