@@ -1,0 +1,41 @@
+name: dispatch
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened]
+
+  issue_comment:
+    types: [created, edited, deleted]
+
+concurrency:
+  group: issue-${{ github.event.issue.number || github.event.comment.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          cat <<EOF > payload.json
+          {
+            "event_type": "external_issue_sync",
+            "client_payload": {
+              "event_name": "${{ github.event_name }}",
+              "action": "${{ github.event.action }}",
+              "repository": "${{ github.repository }}",
+
+              "sender": ${{ toJson(github.event.sender) }},
+              "issue": ${{ toJson(github.event.issue) }},
+              "comment": ${{ toJson(github.event.comment) }},
+              "changes": ${{ toJson(github.event.changes) }}
+            }
+          }
+          EOF
+
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: token ${{ secrets.ST_GHES_TOKEN }}" \
+            "${{ secrets.DISPATCH_URL }}" \
+            -d @payload.json
