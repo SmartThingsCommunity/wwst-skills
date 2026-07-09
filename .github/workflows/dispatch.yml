@@ -1,41 +1,45 @@
 name: dispatch
-
 on:
   issues:
     types: [opened, edited, closed, reopened]
-
   issue_comment:
     types: [created, edited, deleted]
-
+permissions: {}
 concurrency:
-  group: issue-${{ github.event.issue.number || github.event.comment.issue.number }}
-  cancel-in-progress: true
-
+  group: issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
 jobs:
   dispatch:
     runs-on: ubuntu-latest
-
+    if: |
+      github.event_name == 'issues' ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request == null)
     steps:
-      - run: |
-          cat <<EOF > payload.json
-          {
-            "event_type": "external_issue_sync",
-            "client_payload": {
-              "event_name": "${{ github.event_name }}",
-              "action": "${{ github.event.action }}",
-              "repository": "${{ github.repository }}",
+      - name: send payload
+        env:
+          DISPATCH_URL: ${{ secrets.DISPATCH_URL }}
+          ST_GHES_TOKEN: ${{ secrets.ST_GHES_TOKEN }}
+        run: |
+          jq -n \
+            --arg event_name "$GITHUB_EVENT_NAME" \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --slurpfile event "$GITHUB_EVENT_PATH" \
+            '{
+              event_type: "external_issue_sync",
+              client_payload: {
+                event_name: $event_name,
+                action: $event[0].action,
+                repository: $repository,
+                sender: $event[0].sender,
+                issue: $event[0].issue,
+                comment: $event[0].comment,
+                changes: $event[0].changes
+              }
+            }' > payload.json
 
-              "sender": ${{ toJson(github.event.sender) }},
-              "issue": ${{ toJson(github.event.issue) }},
-              "comment": ${{ toJson(github.event.comment) }},
-              "changes": ${{ toJson(github.event.changes) }}
-            }
-          }
-          EOF
-
-          curl -L \
+          curl -sS --fail-with-body --retry 3 --retry-all-errors -L \
             -X POST \
             -H "Accept: application/vnd.github+json" \
-            -H "Authorization: token ${{ secrets.ST_GHES_TOKEN }}" \
-            "${{ secrets.DISPATCH_URL }}" \
+            -H "Authorization: token $ST_GHES_TOKEN" \
+            "$DISPATCH_URL" \
             -d @payload.json
