@@ -137,6 +137,23 @@ This skill explains SmartThings device onboarding QR requirements across Matter,
 - Developers validating QR payload fields before publication
 - Partners handling Matter, Zigbee 3.0, Direct Connected, or Mobile Connected onboarding flows
 
+### 5. App-to-App Account Linking
+
+> **Skill**: `smartthings-app-to-app-linking-developer`
+
+This skill guides mobile app developers in implementing seamless App-to-App Account Linking between native Android/iOS applications and the SmartThings app, specifically for Cloud Connected (ST-Schema) integrations.
+
+**Key features**
+- Associated Domains and Digital Asset Links (`assetlinks.json` / AASA) validation and configurations
+- Native Android Manifest intent filters and Kotlin code templates for intent parsing and callback assembly
+- Xcode capabilities and Swift UserActivity delegate handling for iOS callback routing
+- Support instructions for new vs. already certified Schema Apps
+- Developer Mode setup and end-to-end device testing workflows
+
+**Best fit**
+- Mobile application developers building native smart home apps for Android and iOS
+- Teams integrating ST-Schema apps looking to enable App-to-App account linking
+
 ---
 
 ## ⚠️ Limitations and Notes
