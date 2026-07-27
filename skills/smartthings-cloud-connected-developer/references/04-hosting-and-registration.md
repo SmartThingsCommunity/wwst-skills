@@ -125,4 +125,18 @@ The issued `ST_CLIENT_ID` and `ST_CLIENT_SECRET` must be injected into the code 
 > **Agent Mandatory Obligation (Local Debugging Support)**
 > Do not stop at just explaining the code settings. **Be sure to generate and provide a `curl`-based test snippet** so the user can test whether the callback (stateCallback) works correctly in a terminal environment.
 
+---
+
+## 5. (Optional) App-to-App Account Linking
+
+> [!NOTE]
+> **Optional, but recommended when applicable.** Once the Schema App is registered above and `ST_CLIENT_ID`/`ST_CLIENT_SECRET` are issued, the developer has everything needed to *optionally* add App-to-App Account Linking — a deep-link based login flow that skips the browser-based OAuth screen when the user already has the developer's native mobile app (Android/iOS) installed. If the developer's own app can already authenticate the user, adding this is recommended: it replaces the browser OAuth handoff with a native-to-native login, which noticeably improves onboarding UX and completion rates.
+
+Ask the developer: *"Do you also have a native Android or iOS app for this device that can authenticate the user? If so, account linking is recommended — it lets that app skip the browser login screen when it's installed."*
+
+- **If no, or unsure**: Skip this section and proceed directly to Step 5 (certification/testing) as usual.
+- **If yes**: Hand off to the **`smartthings-app-to-app-linking-developer`** skill to implement it now, *before* certification. Note two important constraints so the developer can plan:
+  1. App-to-App Linking is configured in the same **Schema Apps** console entry created in Section 2 above — the console path is **Schema Apps tab → select this Schema App → App-to-App Linking (optional) section**.
+  2. **Timing matters**: it is much easier to add this now while the Schema App is still uncertified. Once a Schema App is certified/published, it can no longer be edited directly in the console, and enabling App-to-App Linking afterward requires contacting WWST support. See `05-certification.md` for the pre-certification checklist item on this.
+
 Once all the above items are reflected in the code and the server is running, inform the user that they will proceed to Step 5 (05-certification.md) to test whether the integration actually works.

@@ -1,13 +1,13 @@
-# SmartThings Developer Skills
+# SmartThings Developer AI Skills
 
 > **📢 Notice**
 > Features, documentation, and skill behaviors may change. Your feedback via GitHub Issues is highly appreciated!
 
-A collection of AI skills that accelerates SmartThings device integration. It supports the full lifecycle, from initial code generation to WWST certification.
+A collection of AI-powered skills that accelerates SmartThings device integration. It supports the full lifecycle, from initial code generation to WWST certification.
 
 ## 📖 Overview
 
-This project provides AI skills for developers who want to integrate devices into the SmartThings ecosystem. Each skill improves development productivity with step-by-step guidance, best practices, code generation, and debugging support.
+This project provides SmartThings Developer AI Skills for developers who want to integrate devices into the SmartThings ecosystem. Each skill improves development productivity with step-by-step guidance, best practices, code generation, and debugging support.
 
 ### SmartThings Device Integration Types
 
@@ -27,14 +27,14 @@ SmartThings supports three integration types depending on the device characteris
 
 - SmartThings Developer account ([Sign up](https://developer.smartthings.com/))
 - SmartThings CLI (optional, recommended)
-- A coding assistant environment such as Claude Code, Codex, or Antigravity
+- An AI Assistant with file system manipulation capabilities (e.g., Claude Code, Cursor)
 
 ### How To Use These Skills
 
-These skills can be used with AI assistants that support MCP (Model Context Protocol), such as Cline, Cursor, and Claude Desktop.
+SmartThings Developer AI Skills can be used with AI assistants that support file system operations and custom skill loading.
 
 1. **Installation**
-   Install the full skill directory under `skills/` that matches your AI development environment.
+   Install the full SmartThings Developer AI Skills directory under `skills/` to your AI Assistant's skill directory.
 
    You can instruct your AI assistant to install the skills directly by pasting the following prompt:
 
@@ -42,7 +42,7 @@ These skills can be used with AI assistants that support MCP (Model Context Prot
    Install Agent Skills from https://github.com/SmartThingsCommunity/wwst-skills.
    ```
 
-   > **💡 Installation Tip**: If your AI Coding Assistant does not support automatic skill installation, refer to the [Open Agent Skills specification](https://agentskills.io/client-implementation/adding-skills-support#step-1-discover-skills) or your AI Coding Assistant's Skills documentation for manual setup instructions.
+   > **💡 Installation Tip**: If your AI Assistant does not support automatic skill installation, refer to your AI Assistant's documentation for manual skill installation instructions, or add the `skills/` directory to your skill configuration path.
 
    **Uninstall**
    - Delete the copied skill directory, or remove the reference from your tool's configuration.
@@ -68,7 +68,7 @@ These skills can be used with AI assistants that support MCP (Model Context Prot
 
 ## 📚 Skill List
 
-This English README currently documents the following skills under `skills/`.
+This English README currently documents the following SmartThings Developer AI Skills under `skills/`.
 
 ### 1. Cloud Connected (Schema App)
 
@@ -137,11 +137,28 @@ This skill explains SmartThings device onboarding QR requirements across Matter,
 - Developers validating QR payload fields before publication
 - Partners handling Matter, Zigbee 3.0, Direct Connected, or Mobile Connected onboarding flows
 
+### 5. App-to-App Account Linking
+
+> **Skill**: `smartthings-app-to-app-linking-developer`
+
+This skill guides mobile app developers in implementing seamless App-to-App Account Linking between native Android/iOS applications and the SmartThings app, specifically for Cloud Connected (ST-Schema) integrations.
+
+**Key features**
+- Associated Domains and Digital Asset Links (`assetlinks.json` / AASA) validation and configurations
+- Native Android Manifest intent filters and Kotlin code templates for intent parsing and callback assembly
+- Xcode capabilities and Swift UserActivity delegate handling for iOS callback routing
+- Support instructions for new vs. already certified Schema Apps
+- Developer Mode setup and end-to-end device testing workflows
+
+**Best fit**
+- Mobile application developers building native smart home apps for Android and iOS
+- Teams integrating ST-Schema apps looking to enable App-to-App account linking
+
 ---
 
 ## ⚠️ Limitations and Notes
 
-These skills provide development guidance and code generation support for SmartThings device integration. Before applying their output, verify the relevant content with the official SmartThings documentation, Developer Console, SmartThings CLI, and real-device testing.
+SmartThings Developer AI Skills provide development guidance and code generation support for SmartThings device integration. Before applying their output, verify the relevant content with the official SmartThings documentation, Developer Console, SmartThings CLI, and real-device testing.
 
 ---
 

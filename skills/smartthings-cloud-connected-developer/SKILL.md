@@ -74,6 +74,8 @@ Write the SmartThings Schema server code (Node.js, etc.) that actually controls 
 Deploy the developed code to a hosting environment (or ngrok), register it in the SmartThings console, and configure OAuth client information.
 **-> Read the `references/04-hosting-and-registration.md` document and guide the user.**
 
+> **Optional branch (recommended if applicable)**: Once the Schema App is registered in this step, if the developer also has a native Android/iOS app that can authenticate the user, adding **App-to-App Account Linking** (deep-link login instead of browser OAuth) is recommended for the UX/onboarding benefit — implement it via the separate **`smartthings-app-to-app-linking-developer`** skill. This should be done before certification (Step 5) — see the "Optional" section at the end of `references/04-hosting-and-registration.md`.
+
 ### Step 5: Development Testing and Certification
 Perform Developer Mode device testing and the official certification process based on CbS/STTS.
 **-> Read the `references/05-certification.md` document and guide the user.**
@@ -92,5 +94,8 @@ The agent refers to the following official documentation when verifying concepts
 | ST-Schema SDK (Node.js) | https://github.com/SmartThingsCommunity/st-schema-nodejs |
 | SmartThings CLI | https://github.com/SmartThingsCommunity/smartthings-cli |
 | WWST Certification Requirements | https://developer.smartthings.com/docs/certification/required-capabilities |
+| App-to-App Account Linking (optional add-on, separate skill) | https://developer.smartthings.com/docs/devices/cloud-connected/app-to-app-linking |
+
+> **Related skill**: For optional native-app deep-link login on top of this integration, see the **`smartthings-app-to-app-linking-developer`** skill (requires this Schema App to exist first — see Step 4).
 
 Now greet the user, ask if they have information about the device they want to integrate, and begin Step 1.
