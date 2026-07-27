@@ -40,6 +40,7 @@ Before applying for certification in earnest, ask the user whether they have con
 - [ ] Regional account login: Verify that your own OAuth callback works properly even after changing the Samsung account country (US, EU, AP, etc.)
 - [ ] Device list and state display confirmed: Devices are displayed normally in the app, and `online/offline` status handling is perfectly applied
 - [ ] Bidirectional state synchronization: When the device state is changed in your own app, it is immediately reflected in the SmartThings app via `stateCallback`
+- [ ] **App-to-App Account Linking decided (Optional, recommended if applicable)**: If the developer has a native Android/iOS app that can authenticate the user (i.e., it can substitute for the browser OAuth login), adding deep-link based account linking is recommended for the UX/onboarding benefit (see `04-hosting-and-registration.md` Section 5 and the `smartthings-app-to-app-linking-developer` skill). If they plan to add it, it must be added **now, before submitting for certification**. Once this Schema App is certified/published, the console entry is locked and enabling App-to-App Linking afterward requires a WWST support request instead of a self-service console change.
 
 ## 3. Certification Application and Submission
 Guide the user to navigate to the **'Certification' tab** on the SmartThings Developer Console's integration project detail page and click the Submit button to proceed with the STTS (SmartThings Test Suite) submission.
